@@ -1,0 +1,62 @@
+const mongoose = require('mongoose');
+const userSchema = mongoose.Schema({
+    userId:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    userName:{
+        type:String,
+        default:"User"
+    },
+    email:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    password:{
+        type:String,
+        required:true
+    },
+    profilePic:{
+        type:String,
+        default:""
+    },
+    Bio:{
+        type:String,
+        default:""
+
+    },
+    followers:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }
+    ],
+    following:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }
+    ],
+    posts:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Post"
+        }
+    ],
+    savedPosts:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Post"
+        }
+    ],
+    likedPosts:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Post"
+        }
+    ],
+},{timestamps:true});
+const userModel = mongoose.model('User',userSchema);
+module.exports = userModel;
