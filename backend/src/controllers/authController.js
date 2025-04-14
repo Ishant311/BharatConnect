@@ -91,7 +91,8 @@ const verifyOtpForSignupController = async (req, res) => {
             res.cookie("jwt", token, {
                 maxAge: 4 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
-                secure: true
+                secure: true,
+                sameSite:true
             });
             return res.status(200).json({ message: "Signup successful", user: {
                 userId: newUser.userId,
@@ -130,7 +131,8 @@ const SigninController = async (req, res) => {
                 res.cookie("jwt", token, {
                     maxAge: 4 * 24 * 60 * 60 * 1000,
                     httpOnly: true,
-                    secure: true
+                    secure: true,
+                    sameSite:true
                 });
                 return res.status(200).json({ message: "Signin successful",user:{ userId: user.userId, userName: user.userName, _id: user._id , profilePic: user.profilePic }});
             }
