@@ -3,6 +3,7 @@ import Sidebar from '../components/Sidebar.jsx'
 import { usePostStore } from '../store/usePostStore.js';
 import Suggestions from '../components/Suggestions.jsx';
 import Posts from '../components/Posts.jsx';
+import Footer from '../components/Footer.jsx';
 
 function Home() {
   const {posts,isLoadingPosts,getPostsForHome,handleLikePost,handleUnlikePost,likedPosts,getLikedPost} = usePostStore();
@@ -37,6 +38,7 @@ function Home() {
     <>
     <Sidebar/>
     <Posts/>
+    <Footer/>
     </>
   )
 }

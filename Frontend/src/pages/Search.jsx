@@ -6,9 +6,11 @@ import { useUserStore } from '../store/useUserStore';
 import avatar from "../../public/avatar.png"
 import { useAuthStore } from '../store/useAuthStore';
 import Skeleton from '../components/Skeleton';
+import { useNavigate } from 'react-router-dom';
 function Search() {
     const {following,followUser,unfollowUser,getFollowing} = useUserStore();
     const {authUser} = useAuthStore();
+    const navigate = useNavigate();
 
     useEffect(()=>{
         getFollowing();
@@ -75,11 +77,9 @@ function Search() {
             <div className='w-full'>
             {loadingResults && (
                 <Skeleton/>
-              
-              
             )}
             {loadingResults === false && searchResult?.map((user) => (
-                <div key={user._id} className='flex items-center justify-start sm:justify-center p-4 w-full'>
+                <div key={user._id} className='flex items-center justify-start sm:justify-center p-4 w-full cursor-pointer'>
                     <div className='flex items-center justify-between gap-2  w-full sm:w-[60%]'>
                         <div className='flex items-center justify-between gap-2'>
                             <img src={user.profilePic || avatar} alt={user.userName} className='size-10 sm:size-15 rounded-full' />

@@ -11,7 +11,7 @@ function Sidebar() {
       const [createPost, setCreatePost] = useState(false);
       const [hidden,setHidden] = useState(false);
       const navigate = useNavigate();
-      const {authUser,handleLogout} = useAuthStore();
+      const {authUser,handleLogout,setUser} = useAuthStore();
   return (
     <>
       <CreatePost createPost={createPost} setCreatePost={setCreatePost}/>
@@ -30,9 +30,9 @@ function Sidebar() {
                   <NavLink to = "/search" className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
                         <Search className='size-8' /> <span className='hidden lg:block'> Search</span>
                   </NavLink>
-                  <NavLink to = "/explore" className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
+                  {/* <NavLink to = "/explore" className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
                         <Compass className='size-8' /> <span className='hidden lg:block'> Explore</span>
-                  </NavLink>
+                  </NavLink> */}
                   
                   <div className='flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer text-gray-500  w-full hover:bg-gray-100' onClick={() => {setCreatePost(true)}}>
                         <PlusSquare className='size-8' /> <span className='hidden lg:block'> Create </span>
@@ -67,7 +67,7 @@ function Sidebar() {
                               <h1 className='text-sm text-black font-semibold hover:bg-gray-200 p-3 rounded-2xl w-[95%] flex items-center gap-1' onClick={async()=>{
                                     try {
                                           const res = await handleLogout();
-                                          console.log(res);
+                                          setUser();
                                           navigate('/login');
                                     } catch (error) {
                                           console.log(error);

@@ -34,7 +34,7 @@ function Suggestions() {
   }
   return (
     <div className='w-full'>
-      <div className='flex items-center justify-center w-full h-full gap-4 mt-4'>
+      <div className='flex flex-col items-center justify-center w-full h-full gap-4 mt-4'>
 
       {userSuggestions?.map((user) =>(
         <div key={user._id} className='flex items-center justify-center p-4 w-full'>

@@ -1,12 +1,10 @@
 // upstashClient.js
-const { Redis } = require('@upstash/redis');
+const {Redis} = require("ioredis")
 require('dotenv').config();
 
-const redis = new Redis({
-  url: process.env.REDIS_URL,
-  token: process.env.REDIS_TOKEN,
-});
+
+const client = new Redis("rediss://default:AS4bAAIjcDE5NzYzODk0NzA3ZTQ0ODYxYTFlOWEyMjcyYmM2MDY5NXAxMA@funky-sawfly-11803.upstash.io:6379");
 
 
 
-module.exports = redis;
+module.exports = client;

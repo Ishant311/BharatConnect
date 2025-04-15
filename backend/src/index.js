@@ -12,7 +12,7 @@ connectDb();
 const app = express();
 //built-in middleware
 app.use(cors({
-    origin:"https://bharat-connect-psi.vercel.app",
+    origin:"http://localhost:5173",
     credentials:true
 }));
 app.use(express.json({limit:"50mb"}));

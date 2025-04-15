@@ -81,14 +81,14 @@ function Signin() {
             >
               Login
             </button>
-            <button
+            {/* <button
               className="w-full p-3 text-blue-500 bg-transparent rounded-lg hover:text-blue-600 hover:underline focus:outline-none"
               onClick={() => {
                 // TODO: implement forget password functionality
               }}
             >
               Forgot Password?
-            </button>
+            </button> */}
             <div className="text-center">
               <span className="text-gray-600">Not an existing user? </span>
               <Link

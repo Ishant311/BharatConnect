@@ -25,7 +25,7 @@ function App() {
       <Route path="/search" element={<Search/>} />
       <Route path="/login" element={!authUser?<Signin/>:<Navigate to = "/"/>}/>
       <Route path="/signup" element={!authUser?<Signup/>:<Navigate to = "/"/>}/>
-      <Route path="/explore" element={<h1>Explore</h1>} />
+      {/* <Route path="/explore" element={<h1>Explore</h1>} /> */}
       <Route path="/profile/:id" element={<UserPosts/>}/>
       <Route path="/profile/:id" element={
         <ProtectedRoute>
