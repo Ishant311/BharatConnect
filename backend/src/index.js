@@ -12,7 +12,7 @@ connectDb();
 const app = express();
 //built-in middleware
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://bharat-connect-brown.vercel.app",
     credentials:true
 }));
 app.use(express.json({}));
