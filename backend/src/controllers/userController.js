@@ -146,12 +146,12 @@ const updateProfilePicController = async(req,res)=>{
         if(user !== req.user.id){
             return res.status(400).json({message:"You are trying to update other's profile pic"});
         }
-        const {profilePic} = req.body;
+        const profilePic = req.file;
         const userId = req.user.id;
         if(!profilePic){
             return res.status(400).json({message:"Profile pic is required"});
         }
-        const uploadRes = await cloudinary.uploader.upload(profilePic);
+        const uploadRes = await cloudinary.uploader.upload(profilePic.path);
 
         const updateProfilePic = await userModel.findByIdAndUpdate(userId,{
             profilePic:uploadRes.secure_url
@@ -167,40 +167,40 @@ const updateProfilePicController = async(req,res)=>{
 }
 const getFollowersController = async(req,res)=>{
     try {
-        const userId = req.user.id;
-        const user = await userModel.findById(userId).select("followers");
+        const {userId} = req.params;
+        const user = await userModel.find({userId:userId}).select("followers -_id").populate("followers","userId userName profilePic -_id");
         if(!user){
             return res.status(400).json({message:"User not found"});
         }
-        return res.json({followers:user.followers});
+        return res.json({followers:user[0].followers});
     } catch (error) {
         return res.status(500).json({message:`${error.message} from getFollowers`});
     }
 }
 const getFollowingController = async(req,res)=>{
     try {
-        const userId = req.user.id;
-        const user = await userModel.findById(userId).select("following");
+        const {userId} = req.params;
+        const user = await userModel.find({userId:userId}).select("following").populate("following","userId userName profilePic -_id");
         if(!user){
             return res.status(400).json({message:"User not found"});
         }
-        return res.json({following:user.following});
+        return res.json({following:user[0].following});
     } catch (error) {
         return res.status(500).json({message:`${error.message} from getFollowing`});
     }
 }
-const getUsersFollowersController = async(req,res)=>{
-    try {
-        const userId = req.params.id;
-        const user = await userModel.findById(userId).select("followers -_id");
-        if(!user){
-            return res.status(400).json({message:"User not found"});
-        }
-        return res.json({followersCount:user.followers.length});
-    } catch (error){
-        return res.status(500).json({message:`${error.message} from getUsersFollowers`});
-    }
-}
+// const getUsersFollowersController = async(req,res)=>{
+//     try {
+//         const {userId} = req.params;
+//         const user = await userModel.findById(userId).select("followers -_id").populate("followers","userId userName profilePic -_id");
+//         if(!user){
+//             return res.status(400).json({message:"User not found"});
+//         }
+//         return res.json({followersCount:user.followers.length});
+//     } catch (error){
+//         return res.status(500).json({message:`${error.message} from getUsersFollowers`});
+//     }
+// }
 module.exports = {
     searchUsers,
     getProfileController,
@@ -210,5 +210,4 @@ module.exports = {
     updateProfilePicController,
     getFollowersController,
     getFollowingController,
-    getUsersFollowersController
 };

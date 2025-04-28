@@ -7,6 +7,7 @@ import avatar from "../../public/avatar.png"
 import { useAuthStore } from '../store/useAuthStore';
 import Skeleton from '../components/Skeleton';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
 function Search() {
     const {following,followUser,unfollowUser,getFollowing} = useUserStore();
     const {authUser} = useAuthStore();
@@ -48,7 +49,9 @@ function Search() {
     }, [following]);
     return (
         <>
+        
             <Sidebar />
+            <Footer/>
             <div className='flex flex-col items-center justify-center gap-6 lg:ml-[250px] sm:ml-[80px] p-4'>
                 <h1 className='text-3xl lg:text-4xl font-bold text-gray-800'>Search</h1>
                 <p className='text-md lg:text-lg text-gray-500'>Search for posts, users </p>
@@ -67,7 +70,6 @@ function Search() {
                             onChange={(e) => setSelectedOption(e.target.value)}
                         >
                             <option value="users">👤 Users</option>
-                            <option value="posts">📄 Posts</option>
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                             <ArrowDownWideNarrow />
@@ -79,10 +81,12 @@ function Search() {
                 <Skeleton/>
             )}
             {loadingResults === false && searchResult?.map((user) => (
-                <div key={user._id} className='flex items-center justify-start sm:justify-center p-4 w-full cursor-pointer'>
+                <div key={user._id} className='flex items-center justify-start sm:justify-center p-4 w-full'>
                     <div className='flex items-center justify-between gap-2  w-full sm:w-[60%]'>
                         <div className='flex items-center justify-between gap-2'>
-                            <img src={user.profilePic || avatar} alt={user.userName} className='size-10 sm:size-15 rounded-full' />
+                            <img src={user.profilePic || avatar} alt={user.userName} className='size-10 sm:size-15 rounded-full cursor-pointer' onClick={()=>{
+                                navigate(`/profile/${user.userId}`);
+                            }}/>
                             <div >
                                 <h1 className='text-sm sm:text-[17px] font-bold'>{user.userId}</h1>
                                 <h1 className='text-sm text-gray-500'> {user.userName} • {user.followersCount} followers  </h1>

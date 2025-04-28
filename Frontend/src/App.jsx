@@ -9,6 +9,7 @@ import UserPosts from './pages/UserPosts.jsx';
 import Search from './pages/Search.jsx';
 import Profile from './components/Profile.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import Followers from './components/Followers.jsx';
 
 function App() {
   const {authUser,setUser,isLoading} = useAuthStore();
@@ -25,16 +26,16 @@ function App() {
       <Route path="/search" element={<Search/>} />
       <Route path="/login" element={!authUser?<Signin/>:<Navigate to = "/"/>}/>
       <Route path="/signup" element={!authUser?<Signup/>:<Navigate to = "/"/>}/>
-      {/* <Route path="/explore" element={<h1>Explore</h1>} /> */}
       <Route path="/profile/:id" element={<UserPosts/>}/>
+      <Route path="/profile/:id/followers" element={authUser?<Followers/>:<Navigate to ="/login"/>}/>
       <Route path="/profile/:id" element={
-        <ProtectedRoute>
-          <Profile/>
-        </ProtectedRoute>
-        }>
+      <ProtectedRoute>
+        <Profile/>
+      </ProtectedRoute>
+      }>
         <Route path="saved" element={
-            <Profile/>
-          } />
+          <Profile/>
+        } />
       </Route>
     </Routes>
     <Toaster/>

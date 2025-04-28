@@ -2,8 +2,9 @@ import React, { useEffect } from 'react'
 import Profile from '../components/Profile'
 import { useUserStore } from '../store/useUserStore';
 import { useParams } from 'react-router-dom';
+import Footer from '../components/Footer';
 
-function UserPosts() {
+function UserPosts({styles}) {
   const { userPosts, getUserPosts, loadingUserPosts } = useUserStore();
   const { id } = useParams();
   useEffect(() => {
@@ -22,9 +23,10 @@ function UserPosts() {
   return (
     <>
       <Profile />
+      <Footer/>
       <div>
         <div className='flex flex-col items-center justify-center gap-6 lg:ml-[250px] sm:ml-[80px] p-4'>
-          <div className='grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-6xl'>
+          <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-6xl ${styles}`}>
             {
               userPosts.length === 0 ? <h1 className='text-xl'>No Posts</h1> : userPosts.map((post) => (
                 <div className="w-full h-0 pb-[100%] relative bg-black flex items-center justify-center overflow-hidden">

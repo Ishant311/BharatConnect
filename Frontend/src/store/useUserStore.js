@@ -8,6 +8,7 @@ export const useUserStore = create((set,get)=>({
     isLoadingSuggestions: true,
     followers:[],
     following:[],
+    loadingFollowers: true,
     followersCnt:{},
     userPosts:[],
     loadingUserPosts: true,
@@ -75,7 +76,6 @@ export const useUserStore = create((set,get)=>({
     getUserPosts: async (userId)=>{
         try {
             const res = await axiosInstance.get(`/post/get-posts?id=${userId}`);
-            console.log(res.data.posts);
             if(res.status === 200){
                 set({userPosts: res.data.posts})
             }
@@ -83,6 +83,18 @@ export const useUserStore = create((set,get)=>({
             console.log(error)
         }finally {
             set({loadingUserPosts: false})
+        }
+    },
+    getUserFollowers: async(userId)=>{
+        try {
+            const res = await axiosInstance.get(`/user/followers/${userId}`);
+            if(res.status === 200){
+                set({followers: res.data.followers})
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            set({loadingFollowers: false})
         }
     }
 }))

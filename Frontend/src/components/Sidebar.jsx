@@ -11,11 +11,11 @@ function Sidebar() {
       const [createPost, setCreatePost] = useState(false);
       const [hidden,setHidden] = useState(false);
       const navigate = useNavigate();
-      const {authUser,handleLogout,setUser} = useAuthStore();
+      const {authUser,handleLogout,setUserNull} = useAuthStore();
   return (
     <>
       <CreatePost createPost={createPost} setCreatePost={setCreatePost}/>
-        <div className='hidden sm:w-[80px] sm:block lg:w-[250px] h-screen lg:block bg-white border-r-1 border-gray-200 fixed'>
+        <div className='hidden sm:w-[80px] sm:block lg:w-[250px] h-screen lg:block bg-gray-100 border-r-1 border-gray-200 fixed'>
             <div className='flex flex-col items-start justify-evenly h-full m-auto p-4 w-full'>
                 <div className='flex items-start justify-start rounded-lg cursor-pointer w-full'>
 
@@ -38,7 +38,7 @@ function Sidebar() {
                         <PlusSquare className='size-8' /> <span className='hidden lg:block'> Create </span>
                   </div>
                   
-                  <NavLink to = {`/profile/${authUser.userId}`} className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
+                  <NavLink to = {`/profile/${authUser?.userId}`} className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
                         <User2 className='size-8' /> <span className='hidden lg:block'> Profile </span>
                   </NavLink>
                   <div>
@@ -51,7 +51,7 @@ function Sidebar() {
                         setHidden(!hidden);
                   }}><Menu className={`size-8 ${hidden === true?"font-semibold text-blue-500 ":""}`}/> <span className={`hidden lg:block w-full ${hidden === true?"text-blue-500 font-semibold ":""}`}> More </span>
                   </div>
-                  <div className={`absolute bottom-[100%] left-[100%] sm:left-[0%] rounded-lg flex flex-col items-start p-3 justify-start right-0 w-52 h-44 bg-white shadow-lg ${hidden ? 'block' : 'hidden'}`}>
+                  <div className={`absolute bottom-[100%] left-[100%] sm:left-[0%] rounded-lg flex flex-col items-start p-3 justify-start right-0 w-52 h-44 bg-white shadow-lg z-10 ${hidden ? 'block' : 'hidden'}`}>
                         <div className='py-1 border-b-1 border-gray-200 w-full'>
                               <h1 className='text-sm text-black font-semibold hover:bg-gray-200 p-3 rounded-2xl w-[95%] flex items-center gap-1' onClick={()=>{
                                     navigate("/")
@@ -59,7 +59,7 @@ function Sidebar() {
                         </div>
                         <div className='py-1 border-b-1 border-gray-200 w-full'>
                               <h1 className='text-sm text-black font-semibold hover:bg-gray-200 p-3 rounded-2xl w-[95%] flex items-center gap-1' onClick={()=>{
-                                    navigate(`/profile/${authUser.userId}/saved`)
+                                    navigate(`/profile/${authUser?.userId}/saved`)
                               }}>
                                 <Bookmark size={14}/>Saved</h1>
                         </div>
@@ -67,7 +67,7 @@ function Sidebar() {
                               <h1 className='text-sm text-black font-semibold hover:bg-gray-200 p-3 rounded-2xl w-[95%] flex items-center gap-1' onClick={async()=>{
                                     try {
                                           const res = await handleLogout();
-                                          setUser();
+                                          setUserNull();
                                           navigate('/login');
                                     } catch (error) {
                                           console.log(error);

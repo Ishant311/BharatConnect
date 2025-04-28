@@ -1,9 +1,11 @@
 import {create}  from 'zustand';
 import { axiosInstance } from '../lib/axios';
-export const useAuthStore = create((set)=> ({
+import { useUserStore } from './useUserStore';
+export const useAuthStore = create((set,get)=> ({
     authUser: null,
     UserProfilePic: null,
     isLoading: true,
+    updatingProfilePic: false,
     setUser: async ()=>{
         try {
            const res = await axiosInstance.get('/auth/check');
@@ -53,6 +55,21 @@ export const useAuthStore = create((set)=> ({
             return res;
         } catch (error) {
             return error;
+        }
+    },
+    setUserNull:()=>{
+        set({authUser: null})
+    },
+    updateProfilePic: async (formData) => {
+        set({updatingProfilePic: true})
+        try {
+            const res = await axiosInstance.put(`/user/updateProfilePic?id=${get().authUser._id}`, formData);
+            return res;
+        } catch (error) {
+            return error;
+        }
+        finally {
+            set({updatingProfilePic: false})
         }
     }
 }))

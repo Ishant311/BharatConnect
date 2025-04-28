@@ -8,11 +8,11 @@ function ProtectedRoute({children}) {
     if(!authUser){
         return <Navigate to = "/login" />
     }
-
+    
     if(authUser.userId !== id){
         return <Navigate to = {`/profile/${id}`} />
     }
-  return children;
+    return children;
 }
 
 export default ProtectedRoute

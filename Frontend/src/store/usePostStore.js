@@ -5,7 +5,7 @@ export const usePostStore = create((set,get) => ({
     posts: [],
     likedPosts:[],
     savedPosts:[],
-    likeCount: 0,
+    likeCount: new Map(),
     isLoadingPosts: true,
     isCreatingPost: false,
     getPostsForHome: async () =>{
@@ -14,6 +14,13 @@ export const usePostStore = create((set,get) => ({
             const res = await axiosInstance.get('/post/followed-posts');
             if(res.status === 200){
                 set({posts: res.data.posts})
+                let mp = new Map();
+                for (let i = 0; i < res.data.posts.length; i++) {
+                    const postId = res.data.posts[i]._id;
+                    const likes = res.data.posts[i].likes.length;
+                    mp.set(postId, likes);
+                }
+                set({likeCount: mp});
             }
         } catch (error) {
             console.log(error)
@@ -25,7 +32,6 @@ export const usePostStore = create((set,get) => ({
     handleCreatePost: async (formData)=>{
 
         try {
-            console.log(formData);
             const user = useAuthStore.getState().authUser;
             const res = await axiosInstance.post(`/post/create-post?id=${user._id}`, formData);
             return res;
@@ -42,6 +48,9 @@ export const usePostStore = create((set,get) => ({
             const res = await axiosInstance.post('/post/likePost', {postId});
             if(res.status === 200){
                 set({likedPosts: [...get().likedPosts, postId]})
+                const mp = new Map(get().likeCount);
+                mp.set(postId, (mp.get(postId) || 0) + 1);
+                set({likeCount: mp})
             }
         } catch (error) {
             console.log(error)
@@ -52,7 +61,10 @@ export const usePostStore = create((set,get) => ({
             const res = await axiosInstance.post('/post/unlikePost', {postId});
             const likedPosts = get().likedPosts.filter((post) => post !== postId);
             if(res.status === 200){
-                set({likedPosts: likedPosts,likeCount: get().likeCount - 1})
+                set({likedPosts: likedPosts})
+                const mp = new Map(get().likeCount);
+                mp.set(postId, (mp.get(postId) || 0) - 1);
+                set({likeCount: mp})
             }
         } catch (error) {
             console.log(error)
