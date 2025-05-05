@@ -12,7 +12,7 @@ connectDb();
 const app = express();
 //built-in middleware
 app.use(cors({
-    origin:"https://bharat-connect-brown.vercel.app/",
+    origin:"https://bharat-connect-brown.vercel.app",
     credentials:true
 }));
 app.use(express.json({}));
