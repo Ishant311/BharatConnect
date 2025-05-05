@@ -4,7 +4,7 @@ const fs = require('fs');
 const userModel = require('../models/userModel.js');
 const mongoose= require('mongoose');
 const path = require('path');
-const { analyzeImage } = require('../lib/geminiimage.js');
+const { analyzeImage } = require('../lib/geminiImage.js');
 
 /*TODO: 1. query optimisation
 */
