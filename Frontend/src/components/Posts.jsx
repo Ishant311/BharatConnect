@@ -7,21 +7,36 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/useUserStore';
 import { useAuthStore } from '../store/useAuthStore';
 
-function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+function shuffleArray(posts,recommendedPosts) {
+    let i = 0;
+    let j = 0;
+    let arr = [];
+    let start = 0;
+    while(i<posts.length && j<recommendedPosts.length){
+        arr[start++] = posts[i];
+        if(i+1 < posts.length) arr[start++] = posts[i+1];
+        i= i+2;
+        arr[start++] = recommendedPosts[j];
+        j++;
+    }
+    while(i<posts.length){
+        arr[start++] = posts[i];
+        if(i+1<posts.length) arr[start++] = posts[i+1];
+        i = i+2;
+    }
+    while(j<recommendedPosts.length){
+        arr[start++] = recommendedPosts[j];
+        j++;
     }
     return arr;
 }
 function Posts() {
 
     const { posts, likedPosts, handleLikePost, handleUnlikePost,likeCount,getRecommendedPosts,recommendedPosts } = usePostStore();
-    const {savePost,unsavePost,savedPosts,getSavedPosts,following}= useUserStore();
+    const {savePost,unsavePost,savedPosts,getSavedPosts}= useUserStore();
     const {authUser} = useAuthStore();
     const likeMap = likeCount instanceof Map ? likeCount : new Map(Object.entries(likeCount));
-    const showPosts = [...posts,...recommendedPosts];
-    shuffleArray(showPosts);
+    let showPosts = shuffleArray(posts,recommendedPosts);
     useEffect(()=>{
         getSavedPosts();
         getRecommendedPosts();
