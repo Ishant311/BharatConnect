@@ -7,7 +7,6 @@ import Signin from './pages/Signin.jsx';
 import Home from './pages/Home.jsx';
 import UserPosts from './pages/UserPosts.jsx';
 import Search from './pages/Search.jsx';
-import Profile from './components/Profile.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Followers from './components/Followers.jsx';
 import Edit from './pages/Edit.jsx';
@@ -15,7 +14,7 @@ import Following from './components/Following.jsx';
 import Protected from './components/Protected.jsx';
 import Saved from './pages/Saved.jsx';
 import Navbar from './components/Navbar.jsx';
-import SinglePost from './pages/singlePost.jsx';
+import SinglePost from './pages/SinglePost.jsx';
 import Explore from './pages/Explore.jsx';
 
 function App() {
