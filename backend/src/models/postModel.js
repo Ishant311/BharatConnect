@@ -14,7 +14,11 @@ const PostSchema = mongoose.Schema({
             commentBy: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User"
-            }
+            },
+            commentOn: {
+                type: Date,
+                default: Date.now() // IST timezone
+            },
         }
     ]
     ,
@@ -40,6 +44,10 @@ const PostSchema = mongoose.Schema({
         type: String,
         default: ""
     },
+    category:{
+        type: String,
+        default: "General"
+    }
 },{timestamps:true});
 
 const PostModel = mongoose.model("Post", PostSchema);

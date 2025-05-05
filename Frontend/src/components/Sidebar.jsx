@@ -6,16 +6,18 @@ import SmallLogo from './SmallLogo'
 import CreatePost from '../pages/CreatePost'
 import { useAuthStore } from '../store/useAuthStore'
 import { axiosInstance } from '../lib/axios'
+import { useUserStore } from '../store/useUserStore'
 
 function Sidebar() {
       const [createPost, setCreatePost] = useState(false);
       const [hidden,setHidden] = useState(false);
       const navigate = useNavigate();
+      const {setAllStatesToFalse} = useUserStore();
       const {authUser,handleLogout,setUserNull} = useAuthStore();
   return (
     <>
       <CreatePost createPost={createPost} setCreatePost={setCreatePost}/>
-        <div className='hidden sm:w-[80px] sm:block lg:w-[250px] h-screen lg:block bg-gray-100 border-r-1 border-gray-200 fixed'>
+        <div className='hidden sm:w-[80px] sm:block lg:w-[250px] h-screen g:block bg-gray-100 border-r-1 border-gray-200 fixed'>
             <div className='flex flex-col items-start justify-evenly h-full m-auto p-4 w-full'>
                 <div className='flex items-start justify-start rounded-lg cursor-pointer w-full'>
 
@@ -27,16 +29,16 @@ function Sidebar() {
                         <Home className='size-8' /> <span className='hidden lg:block'> Home</span>
                   </NavLink>
                   
-                  <NavLink to = "/search" className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
-                        <Search className='size-8' /> <span className='hidden lg:block'> Search</span>
-                  </NavLink>
-                  {/* <NavLink to = "/explore" className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
+                  <NavLink to = "/explore" className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
                         <Compass className='size-8' /> <span className='hidden lg:block'> Explore</span>
-                  </NavLink> */}
+                        </NavLink>
                   
                   <div className='flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer text-gray-500  w-full hover:bg-gray-100' onClick={() => {setCreatePost(true)}}>
                         <PlusSquare className='size-8' /> <span className='hidden lg:block'> Create </span>
                   </div>
+                  <NavLink to = "/search" className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
+                        <Search className='size-8' /> <span className='hidden lg:block'> Search</span>
+                  </NavLink>
                   
                   <NavLink to = {`/profile/${authUser?.userId}`} className={({isActive}) => `flex items-center justify-start gap-2 p-2 rounded-lg  hover:text-blue-500 cursor-pointer w-full ${isActive ? 'bg-gray-100 text-blue-500' : 'text-gray-500 hover:bg-gray-100'}`}>
                         <User2 className='size-8' /> <span className='hidden lg:block'> Profile </span>
@@ -67,7 +69,9 @@ function Sidebar() {
                               <h1 className='text-sm text-black font-semibold hover:bg-gray-200 p-3 rounded-2xl w-[95%] flex items-center gap-1' onClick={async()=>{
                                     try {
                                           const res = await handleLogout();
+
                                           setUserNull();
+                                          setAllStatesToFalse();
                                           navigate('/login');
                                     } catch (error) {
                                           console.log(error);

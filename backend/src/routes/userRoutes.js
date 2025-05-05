@@ -1,6 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const { searchUsers, getProfileController, followUserController, suggestionController, unfollowUserController, updateProfilePicController, getProfilePicController, getFollowersController, getFollowingController, getUsersFollowersController } = require("../controllers/userController.js");
+const { searchUsers, getProfileController, followUserController, suggestionController, unfollowUserController, updateProfilePicController, getProfilePicController, getFollowersController, getFollowingController, getUsersFollowersController, updateProfileController, savePostController, unsavePostController } = require("../controllers/userController.js");
 const {requireSignin} = require("../middleware/authMiddleware.js");
 
 const upload = multer({ dest: 'uploads/' });
@@ -17,9 +17,13 @@ router.get("/suggestion",requireSignin,suggestionController);
 router.post("/follow",requireSignin,followUserController);
 router.post("/unfollow",requireSignin,unfollowUserController);
 
-//getProfilePic
+//save/unsave post
+router.post("/savePost",requireSignin,savePostController);
+router.post("/unsavePost",requireSignin,unsavePostController);
 
-router.post("/updateProfilePic",requireSignin,updateProfilePicController);
+
+//getProfilePic
 router.put("/updateProfilePic",requireSignin,upload.single("file"),updateProfilePicController);
+router.put("/updateProfile",requireSignin,updateProfileController);
 
 module.exports = router;

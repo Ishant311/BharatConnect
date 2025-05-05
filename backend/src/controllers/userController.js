@@ -1,5 +1,6 @@
 const userModel = require('../models/userModel.js');
 const postModel = require('../models/postModel.js');
+const fs = require('fs');
 const cloudinary = require('../lib/cloudinary.js');
 const mongoose = require('mongoose');
 const { options } = require('../routes/userRoutes.js');
@@ -65,11 +66,14 @@ const followUserController = async (req,res)=>{
         if(followId === userId){
             return res.status(400).json({message:"You cannot follow yourself"});
         }
-        const user = await userModel.findByIdAndUpdate(userId,{
-            $addToSet:{following:followId}
-        },{new:true});
         const follow = await userModel.findByIdAndUpdate(followId,{
             $addToSet:{followers:userId}
+        },{new:true});
+        const user = await userModel.findByIdAndUpdate(userId,{
+            $addToSet:{
+                following:followId,
+                category:{ $each : follow.category }
+            }
         },{new:true});
         if(!user || !follow){
             return res.status(400).json({message:"Something went wrong"});
@@ -160,6 +164,7 @@ const updateProfilePicController = async(req,res)=>{
         if(!updateProfilePic){
             return res.status(400).json({message:"Something went wrong"});
         }
+        fs.unlinkSync(profilePic.path);
         return res.status(200).json({message:"Profile pic updated successfully"});
     } catch (error) {
         res.status(500).json({message:`${error.message} from updateProfilePic`});
@@ -180,7 +185,7 @@ const getFollowersController = async(req,res)=>{
 const getFollowingController = async(req,res)=>{
     try {
         const {userId} = req.params;
-        const user = await userModel.find({userId:userId}).select("following").populate("following","userId userName profilePic -_id");
+        const user = await userModel.find({userId:userId}).select("following").populate("following","userId userName profilePic");
         if(!user){
             return res.status(400).json({message:"User not found"});
         }
@@ -189,18 +194,58 @@ const getFollowingController = async(req,res)=>{
         return res.status(500).json({message:`${error.message} from getFollowing`});
     }
 }
-// const getUsersFollowersController = async(req,res)=>{
-//     try {
-//         const {userId} = req.params;
-//         const user = await userModel.findById(userId).select("followers -_id").populate("followers","userId userName profilePic -_id");
-//         if(!user){
-//             return res.status(400).json({message:"User not found"});
-//         }
-//         return res.json({followersCount:user.followers.length});
-//     } catch (error){
-//         return res.status(500).json({message:`${error.message} from getUsersFollowers`});
-//     }
-// }
+const updateProfileController = async(req,res)=>{
+    try {
+        const id= req.query.id;
+        if(id !== req.user.id){
+            return res.status(400).json({message:"You are trying to update other's profile"});
+        }
+        const {bio, gender} = req.body;
+        const updateProfile = await userModel.findByIdAndUpdate(id,{
+            $set:{
+                Bio:bio,
+                gender:gender
+            }
+        })
+        if(!updateProfile){
+            return res.status(400).json({message:"Something went wrong"});
+        }
+        return res.status(200).json({message:"Profile updated successfully"});
+    } catch (error) {
+        return res.status(500).json({message:`${error.message} from updateProfile`});
+    }
+}
+const savePostController =async(req,res)=>{
+    try {
+        const postId = req.query.id;
+        const userId = req.user.id;
+        if(!postId){
+            return res.status(400).json({message:"PostId is required"});
+        }
+        const savePost = await userModel.findByIdAndUpdate(userId,{
+            $addToSet:{savedPosts:postId}
+        },{new:true});
+        return res.status(200).json({savePost});
+    } catch (error) {
+        return res.status(500).json({message:`${error.message} from savePost`});
+    }
+}
+const unsavePostController = async(req,res)=>{
+    try {
+        const postId = req.query.id;
+        const userId = req.user.id;
+        if(!postId){
+            return res.status(400).json({message:"PostId is required"});
+        }
+        const unsavePost = await userModel.findByIdAndUpdate(userId,{
+            $pull:{savedPosts:postId}
+        },{new:true});
+        return res.status(200).json({unsavePost}); 
+    } catch (error) {
+        return res.status(500).json({message:`${error.message} from unsavePost`});
+    }
+}
+
 module.exports = {
     searchUsers,
     getProfileController,
@@ -210,4 +255,7 @@ module.exports = {
     updateProfilePicController,
     getFollowersController,
     getFollowingController,
+    updateProfileController,
+    savePostController,
+    unsavePostController
 };

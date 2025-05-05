@@ -2,9 +2,11 @@ import React, { useEffect } from 'react'
 import { useUserStore } from '../store/useUserStore'
 import avatar from '../../public/avatar.png'
 import { toast } from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 function Suggestions() {
   const {userSuggestions,suggestions,isLoadingSuggestions,followUser,following,getFollowing,unfollowUser} = useUserStore()
+  const navigate = useNavigate();
   useEffect(()=>{
     suggestions()
     getFollowing()
@@ -40,7 +42,9 @@ function Suggestions() {
         <div key={user._id} className='flex items-center justify-center p-4 w-full'>
           <div className='flex items-center justify-between gap-2 w-[80%] sm:w-[60%]'>
             <div className='flex items-center justify-between gap-2'>
-            <img src={user.profilePic || avatar} alt={user.username} className='size-10 sm:size-15 rounded-full' />
+            <img src={user.profilePic || avatar} alt={user.username} className='size-10 sm:size-15 rounded-full' onClick={()=>{
+              navigate(`/profile/${user.userId}`)
+            }} />
               <div>
                 <h1 className='text-sm sm:text-[17px] font-bold'>{user.userId}</h1>
                 <h1 className='text-sm'> {user.followersCount} followers </h1>

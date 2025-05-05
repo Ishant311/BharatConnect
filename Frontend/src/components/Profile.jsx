@@ -6,6 +6,8 @@ import { useAuthStore } from '../store/useAuthStore';
 import avatar from '../../public/avatar.png'
 import { Bookmark, Pen } from 'lucide-react';
 import PostSvg from './PostSvg';
+import Navbar from './Navbar';
+import Footer from './Footer';
 
 function Profile() {
   const imgRef = useRef(null);
@@ -39,7 +41,11 @@ function Profile() {
   const isSelf = authUser?.userId === userProfile[0]?.userId;
   return (
     <>
+      <div className='sm:hidden sm:p-0 p-4'>
+        <Navbar/>
+      </div>
       <Sidebar />
+      <Footer />
       <div className="w-full flex justify-center items-center flex-col sm:pl-[80px] lg:pl-[250px] pt-10 px-4">
         <div className="flex flex-col sm:flex-row items-center sm:items-start justify-start w-full sm:w-[600px] lg:w-[800px] bg-white border-b border-gray-200 p-5 gap-5">
           <div className="flex flex-col items-center justify-center w-24 sm:w-32">
@@ -50,7 +56,7 @@ function Profile() {
                   <img
                   src={imgRef.current?.files[0] ? URL.createObjectURL(imgRef.current.files[0]) : userProfile[0]?.profilePic || avatar}
                   alt="Profile"
-                  className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-gray-300"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-gray-300"
                 />
                 </>
               )}
@@ -58,7 +64,7 @@ function Profile() {
                 <img
                   src={imgRef.current?.files[0]?URL.createObjectURL(imgRef.current.files[0]):userProfile[0]?.profilePic || avatar}
                   alt="Profile"
-                  className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-gray-300"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-gray-300"
                 />
               )}
               
@@ -80,7 +86,9 @@ function Profile() {
               <h1 className="text-lg font-semibold">{userProfile[0]?.userId}</h1>
               <div>
                 {isSelf && (
-                  <button className="bg-gray-200 text-sm text-black px-3 py-1 rounded-lg hover:bg-gray-300 font-semibold">
+                  <button className="hidden sm:block bg-gray-200 text-sm text-black px-3 py-1 rounded-lg hover:bg-gray-300 font-semibold cursor-pointer" onClick={()=>{
+                    navigate("/edit");
+                  }}>
                     Edit Profile
                   </button>
                 )}
@@ -111,18 +119,23 @@ function Profile() {
                 <span className="text-gray-500">posts</span>
               </h1>
               <h1 className="text-sm cursor-pointer" onClick={()=>{
-                navigate("followers");
+                if(userProfile[0]?.followers.length === 0) return;
+                navigate(`/profile/${userProfile[0]?.userId}/followers`);
               }}>
                 {userProfile[0]?.followers.length}{" "}
-                <span className="text-gray-500 cursor-pointer">followers</span>
+                <span className="text-gray-500">followers</span>
               </h1>
-              <h1 className="text-sm">
+              <h1 className="text-sm cursor-pointer" onClick={()=>{
+                if(userProfile[0]?.following.length === 0) return;
+                navigate(`/profile/${userProfile[0]?.userId}/following`);
+              }}>
                 {userProfile[0]?.following.length}{" "}
                 <span className="text-gray-500">following</span>
               </h1>
             </div>
-            <div className="flex items-center justify-start mt-2">
-              <h1 className="text-lg font-semibold">{userProfile[0]?.userName}</h1>
+            <div className="flex flex-col items-start justify-center mt-2 gap-4">
+              <h1 className="text-lg">{userProfile[0]?.userName}</h1>
+              <h1 className='text-sm font-bold font-mono'>{userProfile[0]?.Bio}</h1>
             </div>
           </div>
         </div>

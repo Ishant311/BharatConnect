@@ -33,8 +33,13 @@ const sendOtpForSignupController = async (req, res) => {
             return res.status(400).json({ message: `Please wait ${ttl}s before requesting a new OTP` });
         }
         const otp = generateOtp();
-        await redis.set(`otp:${email}`, otp, 'EX', 300);
-        await redis.set(`tries:${email}`, 0, 'EX', 300);
+        await redis.set(`otp:${email}`, otp,{
+            ex: 300,
+        });
+        console.log(otp);
+        await redis.set(`tries:${email}`, 0, {
+            ex: 300,
+        });
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -49,9 +54,12 @@ const sendOtpForSignupController = async (req, res) => {
             subject: 'OTP for registeration',
             text: `Your OTP is ${otp}`
         });
-        await redis.set(timeLeft, '1', 'EX', 60);
+        await redis.set(timeLeft, '1',{
+            ex: 60,
+        });
         return res.status(200).json({ message: "OTP sent to email" });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ message: error.message });
     }
 }
@@ -68,13 +76,17 @@ const verifyOtpForSignupController = async (req, res) => {
             return res.status(400).json({ message: `Too many attempts try after ${Math.ceil(ttl / 60)}  minutes` });
         }
         const tries = await redis.get(`tries:${email}`);
-        await redis.set(`tries:${email}`, parseInt(tries) + 1, 'EX', 300);
+        await redis.set(`tries:${email}`, parseInt(tries) + 1,{
+            ex: 300,
+        });
         if (tries > 3) {
-            await redis.set(`blocked:${email}`, 1, 'EX', 300);
+            await redis.set(`blocked:${email}`, 1,{
+                ex: 300,
+            });
             return res.status(400).json({ message: "Too many attempts try after 5 minutes" });
         }
         const storedOtp = await redis.get(`otp:${email}`);
-        if (storedOtp === otp) {
+        if (storedOtp === parseInt(otp)) {
             await redis.del(email);
             const user = await userModel.findOne({ email: email });
             const userid = await userModel.findOne({ userId });
@@ -98,7 +110,11 @@ const verifyOtpForSignupController = async (req, res) => {
                 userId: newUser.userId,
                 userName: newUser.userName,
                 _id: newUser._id,
-                profilePic: newUser.profilePic
+                profilePic: newUser.profilePic,
+                Bio: newUser.Bio,
+                gender:newUser.gender,
+                following:newUser.following
+
             }, token });
         }
         return res.status(400).json({ message: "Invalid OTP" });
@@ -118,7 +134,7 @@ const SigninController = async (req, res) => {
         const user = await userModel.findOne({ $or:[
             { email: email },
             { userId: userId }
-        ] }).select("_id userId email password userName profilePic");
+        ] }).select("_id userId email password userName profilePic Bio gender following");
             if (!user) {
                 return res.status(400).json({ message: "User does not exist" });
             }
@@ -134,7 +150,7 @@ const SigninController = async (req, res) => {
                     secure: true,
                     sameSite:'None'
                 });
-                return res.status(200).json({ message: "Signin successful",user:{ userId: user.userId, userName: user.userName, _id: user._id , profilePic: user.profilePic }});
+                return res.status(200).json({ message: "Signin successful",user:{ userId: user.userId, userName: user.userName, _id: user._id , profilePic: user.profilePic,Bio: user.Bio,gender:user.gender,following:user.following}});
             }
     } catch (error) {
         return res.status(500).json({ message: error.message });

@@ -3,6 +3,8 @@ const cloudinary = require('../lib/cloudinary.js');
 const fs = require('fs');
 const userModel = require('../models/userModel.js');
 const mongoose= require('mongoose');
+const path = require('path');
+const { analyzeImage } = require('../lib/geminiimage.js');
 
 /*TODO: 1. query optimisation
 */
@@ -34,14 +36,20 @@ const postController = async(req,res)=>{
             fs.unlinkSync(file.path);
             return res.status(200).json({message:"Post created successfully",post});
         }else if(file.mimetype.startsWith("image")){
+            const result = await analyzeImage(file.path,"I want one (or atmost two) and only one word category for this image and no extra chit-chat");
+            const category = result;
             const post = await postModel.create({
                 text:text,
                 image:upload.secure_url,
                 createdBy:userId,
                 type:"image",
+                category:category,
             })
             await userModel.findByIdAndUpdate(userId,{
-                $addToSet:{posts:post._id}
+                $addToSet:{
+                    posts:post._id,
+                    category:category,
+                }
             })
             fs.unlinkSync(file.path);
             return res.status(200).json({message:"Post created successfully",post});
@@ -100,11 +108,11 @@ const getSinglePostController = async(req,res)=>{
         if(!pid){
             return res.status(400).json({message:"Post id is required"});
         }
-        const post = await postModel.findById(pid).select("profilePic text image video createdAt").populate("createdBy");
+        const post = await postModel.findById(pid).select("profilePic text image video createdAt comments likes -_id").populate("createdBy","userName userId profilePic").populate("comments.commentBy","userName userId profilePic").sort({createdAt:-1});
         if(!post){
             return res.status(404).json({message:"Post not found"});
         }
-        return res.status(200).json({post});
+        return res.status(200).json(post);
     } catch (error) {
         return res.status(500).json({message:error.message});
     }
@@ -165,25 +173,28 @@ const getCommentsController = async(req,res)=>{
 const likePostController = async(req,res)=>{
     try {
         const {postId} = req.body;
-        const userId = new mongoose.Types.ObjectId(req.user.id);
+        const userId = req.user.id;
         if(!postId){
             return res.status(400).json({message:"PostId is required"});
         }
-        const liked = await userModel.find({
-            $and:[
-                {_id:userId},
-                {likedPosts:postId},
-            ]
-        })
-        if(liked.length > 0){
-            return res.status(400).json({message:"Already liked"});
-        }
-        const likedPost = await userModel.findByIdAndUpdate(userId,{
-            $addToSet:{likedPosts:new mongoose.Types.ObjectId(postId)}
-        },{new:true}).select("likedPosts -_id");
+        // const liked = await userModel.find({
+        //     $and:[
+        //         {_id:userId},
+        //         {likedPosts:postId},
+        //     ]
+        // })
+        // if(liked.length > 0){
+        //     return res.status(400).json({message:"Already liked"});
+        // }
         const post = await postModel.findByIdAndUpdate(postId,{
             $addToSet:{likes:userId}
-        },{new:true}).select("likes -_id");
+        },{new:true}).select("likes category -_id");
+        const likedPost = await userModel.findByIdAndUpdate(userId,{
+            $addToSet:{
+                likedPosts:postId,
+                category:post.category,
+            }
+        },{new:true}).select("likedPosts -_id");
         if(!likedPost || !post){
             return res.status(400).json({message:"Something went wrong"});
         }
@@ -200,12 +211,14 @@ const unlikePostController = async(req,res)=>{
         if(!postId){
             return res.status(400).json({message:"PostId is required"});
         }
-        const unlikedPost = await userModel.findByIdAndUpdate(userId,{
-            $pull:{likedPosts:new mongoose.Types.ObjectId(postId)}
-        },{new:true}).select("likedPosts -_id");
         const post = await postModel.findByIdAndUpdate(postId,{
             $pull:{likes:new mongoose.Types.ObjectId(userId)}
         },{new:true});
+        const unlikedPost = await userModel.findByIdAndUpdate(userId,{
+            $pull:{likedPosts:new mongoose.Types.ObjectId(postId),
+                category:post.category,
+            }
+        },{new:true}).select("likedPosts -_id");
         if(!unlikedPost || !post){
             return res.status(400).json({message:"Something went wrong"});
         }
@@ -222,14 +235,16 @@ const commentPostController = async(req,res)=>{
         if(!postId || !comment){
             return res.status(400).json({message:"PostId and comment are required"});
         }
+        const date = new Date();
         const post = await postModel.findByIdAndUpdate(postId,{
-            $addToSet:{comments:{text:comment,commentBy:userId}}
+            $addToSet:{comments:{text:comment,commentBy:userId,commentOn:date.toISOString()}},
         },{new:true});
         if(!post){
             return res.status(400).json({message:"Something went wrong"});
         }
         return res.status(200).json({message:"Commented successfully"});
     } catch (error) {
+        console.log(error);
         res.status(500).json({message:`${error.message} from commentPost`});   
         
     }
@@ -260,13 +275,42 @@ const getSavedPostController = async(req,res)=>{
         if(userId !== user){
             return res.status(400).json({message:"You are trying viewing other's saved posts"});
         }
-        const savedPosts = await userModel.findById(userId).populate("savedPosts").select("savedPosts").sortBy({createdAt:-1});
+        const savedPosts = await userModel.findById(userId).select("savedPosts -_id").populate("savedPosts","text image video createdBy").sort({createdAt:-1});
         if(!savedPosts){
             return res.status(400).json({message:"No saved posts found"});
         }
-        return res.status(200).json({savedPosts});
+        return res.status(200).json(savedPosts);
     } catch (error) {
         res.status(500).json({message:`${error.message} from getSavedPost`});   
+        
+    }
+}
+const getExplorePostController = async(req,res)=>{
+    try {
+        const userId = req.user.id;
+        const categories = await userModel.findById(userId).select("category following -_id");
+        const recommendedPosts = await postModel.find(
+            {$and:[
+                {createdBy:{$nin:categories.following}},
+                {category:{$in:categories.category}}
+            ]},
+        ).limit(100).populate("createdBy","profilePic userId userName").sort({createdAt:-1});
+        console.log(recommendedPosts);
+        if(!recommendedPosts){
+            return res.status(400).json({message:"No recommended posts found"});
+        }
+        return res.status(200).json({recommendedPosts});
+    } catch (error) {
+        res.status(500).json({message:`${error.message} from getSavedPost`});   
+        
+    }
+}
+const getAllPostsController= async(req,res)=>{
+    try {
+        const page = req.query.page || 0;
+        const posts = await postModel.find({}).select("image video likes comments").limit(10).skip(page*10);
+        return res.status(200).json(posts);
+    } catch (error) {
         
     }
 }
@@ -284,4 +328,6 @@ module.exports = {
     getSavedPostController,
     getFollowedPostsController,
     getSinglePostController,
+    getExplorePostController,
+    getAllPostsController
 }

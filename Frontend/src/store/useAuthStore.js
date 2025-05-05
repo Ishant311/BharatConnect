@@ -31,7 +31,6 @@ export const useAuthStore = create((set,get)=> ({
     handleVerify: async (email,password,otp,name,userId) => {
         try {
             const res = await axiosInstance.post('/auth/signup-verify', {email,password,otp,name,userId});
-            console.log(res.data)
             set({authUser: res.data.user})
             return res;
         } catch (error) {
@@ -41,7 +40,6 @@ export const useAuthStore = create((set,get)=> ({
     handleLogin: async (email,password,userId) => {
         try {
             const res = await axiosInstance.post('/auth/signin', {email,password,userId});
-            console.log(res.data)
             set({authUser: res.data.user})
             return res;
         } catch (error) {
@@ -70,6 +68,14 @@ export const useAuthStore = create((set,get)=> ({
         }
         finally {
             set({updatingProfilePic: false})
+        }
+    },
+    updateProfile:async(data)=>{
+        try {
+            const res = await axiosInstance.put(`/user/updateProfile?id=${get().authUser._id}`, data);
+            return res;
+        } catch (error) {
+            return error;
         }
     }
 }))

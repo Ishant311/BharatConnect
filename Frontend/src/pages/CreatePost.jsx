@@ -54,6 +54,8 @@ function CreatePost({ createPost, setCreatePost }) {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
     
   }

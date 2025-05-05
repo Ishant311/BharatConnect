@@ -1,10 +1,16 @@
 import {create} from 'zustand';
 import { axiosInstance } from '../lib/axios';
 import { useAuthStore } from './useAuthStore';
+import { all } from 'axios';
 export const usePostStore = create((set,get) => ({
     posts: [],
+    shuffledArr:[],
+    allPosts:[],
+    loadingAllPosts:true,
+    recommendedPosts: [],
+    postDetail: {},
+    loadingPostDetail:true,
     likedPosts:[],
-    savedPosts:[],
     likeCount: new Map(),
     isLoadingPosts: true,
     isCreatingPost: false,
@@ -29,8 +35,24 @@ export const usePostStore = create((set,get) => ({
             set({isLoadingPosts: false})
         }
     },
-    handleCreatePost: async (formData)=>{
+    getSinglePost:async(postId)=>{
+        try {
 
+            const res = await axiosInstance.get(`/post/get-posts/${postId}`);
+            console.log(res);
+            if(res.status === 200){
+                set({postDetail: res.data})
+                let mp = new Map();
+                mp.set(postId, res.data.likes.length);
+                set({likeCount: mp});
+            }
+        } catch (error) {
+            console.log(error)
+        } finally{
+            set({loadingPostDetail:false});
+        }
+    },
+    handleCreatePost: async (formData)=>{
         try {
             const user = useAuthStore.getState().authUser;
             const res = await axiosInstance.post(`/post/create-post?id=${user._id}`, formData);
@@ -45,29 +67,33 @@ export const usePostStore = create((set,get) => ({
     },
     handleLikePost: async (postId)=>{
         try {
+            set({likedPosts: [...get().likedPosts, postId]})
+            const mp = new Map(get().likeCount);
+            mp.set(postId, (mp.get(postId) || 0) + 1);
+            set({likeCount: mp})
             const res = await axiosInstance.post('/post/likePost', {postId});
-            if(res.status === 200){
-                set({likedPosts: [...get().likedPosts, postId]})
-                const mp = new Map(get().likeCount);
-                mp.set(postId, (mp.get(postId) || 0) + 1);
-                set({likeCount: mp})
-            }
         } catch (error) {
             console.log(error)
+            set({likedPosts: get().likedPosts.filter((post) => post !== postId)})
+            const mp = new Map(get().likeCount);
+            mp.set(postId, (mp.get(postId) || 0) - 1);
+            set({likeCount: mp})
         }
     },
     handleUnlikePost: async (postId)=>{
         try {
-            const res = await axiosInstance.post('/post/unlikePost', {postId});
             const likedPosts = get().likedPosts.filter((post) => post !== postId);
-            if(res.status === 200){
-                set({likedPosts: likedPosts})
-                const mp = new Map(get().likeCount);
-                mp.set(postId, (mp.get(postId) || 0) - 1);
-                set({likeCount: mp})
-            }
+            set({likedPosts: likedPosts})
+            const mp = new Map(get().likeCount);
+            mp.set(postId, (mp.get(postId) || 0) - 1);
+            set({likeCount: mp})
+            const res = await axiosInstance.post('/post/unlikePost', {postId});
         } catch (error) {
             console.log(error)
+            set({likedPosts: [...get().likedPosts, postId]})
+            const mp = new Map(get().likeCount);
+            mp.set(postId, (mp.get(postId) || 0) + 1);
+            set({likeCount: mp})
         }
     },
     getLikedPost:async ()=>{
@@ -81,15 +107,29 @@ export const usePostStore = create((set,get) => ({
             console.log(error)
         }
     },
-    getLikesOnPost: async (postId)=>{
+    getRecommendedPosts: async ()=>{
         try {
-            const res = await axiosInstance.get(`/post/get-likes/count?postId=${postId}`);
+            if(!useAuthStore.getState().authUser) return;
+            const res = await axiosInstance.get(`/post/explore`);
             if(res.status === 200){
-                set({postLikes: res.data.likes})
+                set({recommendedPosts: res.data.recommendedPosts})
             }
         } catch (error) {
             console.log(error)
         }
+    },
+    getAllPosts:async(page)=>{
+        try {
+            const res = await axiosInstance.get(`/post/explore-all?page=${page}`);
+           
+            set({allPosts:[...get().allPosts,...res.data]});
+            console.log(get().allPosts);
+        } catch (error) {
+            console.log(error)
+        } finally{
+            set({loadingAllPosts:false});
+        }
     }
+
 }))
 

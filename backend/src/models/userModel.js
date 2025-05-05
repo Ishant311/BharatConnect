@@ -27,6 +27,10 @@ const userSchema = mongoose.Schema({
         default:""
 
     },
+    gender:{
+        type:String,
+        default:"Male"
+    },
     followers:[
         {
             type:mongoose.Schema.Types.ObjectId,
@@ -57,6 +61,11 @@ const userSchema = mongoose.Schema({
             ref:"Post"
         }
     ],
+    category:[
+        {
+            type:String,
+        }
+    ]
 },{timestamps:true});
 const userModel = mongoose.model('User',userSchema);
 module.exports = userModel;

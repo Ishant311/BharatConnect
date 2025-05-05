@@ -1,7 +1,7 @@
 const express = require('express');
 const  multer  = require('multer');
 const { requireSignin } = require('../middleware/authMiddleware.js');
-const { postController, getPostLikesController, getPostController, getCommentCntController, getCommentsController, likePostController, unlikePostController, commentPostController, getLikedPostController, getSavedPostController, getFollowedPostsController, getSinglePostController } = require('../controllers/postController.js');
+const { postController, getPostLikesController, getPostController, getCommentCntController, getCommentsController, likePostController, unlikePostController, commentPostController, getLikedPostController, getSavedPostController, getFollowedPostsController, getSinglePostController, getExplorePostController, getAllPostsController } = require('../controllers/postController.js');
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -21,12 +21,18 @@ router.get('/get-likes/count',getPostLikesController);
 
 
 //comments routes
-router.post("/commentPost",requireSignin,commentPostController);
+router.post("/comment",requireSignin,commentPostController);
 router.get("/comment-count",getCommentCntController);
 router.get("/get-comments",getCommentsController);
 
 //liked and saved posts routes
 router.get("/likedPosts",requireSignin,getLikedPostController);
 router.get("/savedPosts",requireSignin,getSavedPostController);
+
+//explore 
+router.get("/explore",requireSignin,getExplorePostController);
+
+//exploreAllPosts
+router.get("/explore-all",requireSignin,getAllPostsController);
 
 module.exports = router;

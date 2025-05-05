@@ -14,7 +14,7 @@ function Search() {
     const navigate = useNavigate();
 
     useEffect(()=>{
-        getFollowing();
+        getFollowing(authUser.userId);
     },[]);
     const [selectedOption, setSelectedOption] = useState("users");
     const [searchTerm, setSearchTerm] = useState("");
@@ -44,9 +44,13 @@ function Search() {
         }
         setLoadingResults(false);
     }
+
     useEffect(() => {
-        handleSearch(searchTerm);
-    }, [following]);
+        const timer = setTimeout(() => {
+            handleSearch(searchTerm);
+        },800)
+        return () => clearTimeout(timer);
+    }, [following,searchTerm]);
     return (
         <>
         
@@ -58,8 +62,11 @@ function Search() {
                 <div className='w-full max-w-2xl flex items-center justify-center'>
                     <div className='relative w-full z-[0]'>
                         <input type="text" value={searchTerm} onChange={(e) => {
+                            setLoadingResults(true);
+                            if(e.target.value.length === 0) {
+                                setLoadingResults(false);
+                            }
                             setSearchTerm(e.target.value)
-                            handleSearch(e.target.value);
                         }} placeholder='Search...' className='w-full max-w-2xl p-2 border border-gray-300 rounded-lg' />
                         <SearchIcon className='absolute right-4 top-2 text-gray-500' />
                     </div>
