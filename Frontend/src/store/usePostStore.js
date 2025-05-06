@@ -39,7 +39,6 @@ export const usePostStore = create((set,get) => ({
         try {
 
             const res = await axiosInstance.get(`/post/get-posts/${postId}`);
-            console.log(res);
             if(res.status === 200){
                 set({postDetail: res.data})
                 let mp = new Map();
@@ -113,6 +112,13 @@ export const usePostStore = create((set,get) => ({
             const res = await axiosInstance.get(`/post/explore`);
             if(res.status === 200){
                 set({recommendedPosts: res.data.recommendedPosts})
+                const mp = new Map(get().likeCount);
+                for (let i = 0; i < res.data.recommendedPosts.length; i++) {
+                    const postId = res.data.recommendedPosts[i]._id;
+                    const likes = res.data.recommendedPosts[i].likes.length;
+                    mp.set(postId, likes);
+                }
+                set({likeCount: mp});
             }
         } catch (error) {
             console.log(error)
