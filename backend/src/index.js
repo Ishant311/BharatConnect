@@ -12,9 +12,9 @@ dotenv.config();
 connectDb();
 const app = express();
 //built-in middleware
-//https://bharat-connect-brown.vercel.app
+//
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://bharat-connect-brown.vercel.app",
     credentials:true
 }));
 app.use(express.json({}));
