@@ -216,7 +216,6 @@ const unlikePostController = async(req,res)=>{
         },{new:true});
         const unlikedPost = await userModel.findByIdAndUpdate(userId,{
             $pull:{likedPosts:new mongoose.Types.ObjectId(postId),
-                category:post.category,
             }
         },{new:true}).select("likedPosts -_id");
         if(!unlikedPost || !post){
