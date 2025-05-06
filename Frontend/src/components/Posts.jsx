@@ -10,6 +10,7 @@ import { useAuthStore } from '../store/useAuthStore';
 function shuffleArray(posts,recommendedPosts) {
     let i = 0;
     let j = 0;
+    console.log(posts,recommendedPosts);
     let arr = [];
     let start = 0;
     while(i<posts.length && j<recommendedPosts.length){
@@ -28,6 +29,7 @@ function shuffleArray(posts,recommendedPosts) {
         arr[start++] = recommendedPosts[j];
         j++;
     }
+
     return arr;
 }
 function Posts() {
