@@ -25,6 +25,7 @@ export const useAuthStore = create((set,get)=> ({
             const res = await axiosInstance.post('/auth/signup-send', {name,email,password,userId});
             return res;
         } catch (error) {
+            console.log(error);
             return error;
         }
     },
