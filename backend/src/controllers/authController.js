@@ -159,7 +159,7 @@ const SigninController = async (req, res) => {
 
 const logoutController = (req, res) => {
     try {
-        res.cookie("jwt", "", { maxAge: 0 });
+        res.cookie("jwt", "", { maxAge: 0, httpOnly: true, secure: true, sameSite:'None' });
         return res.status(200).json({ message: "Logged out successfully " });
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
