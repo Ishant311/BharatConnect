@@ -36,7 +36,7 @@ const postController = async(req,res)=>{
             fs.unlinkSync(file.path);
             return res.status(200).json({message:"Post created successfully",post});
         }else if(file.mimetype.startsWith("image")){
-            const result = await analyzeImage(file.path,"I want one (or atmost two) and only one word category for this image and no extra chit-chat");
+            const result = await analyzeImage(file.path,"I want one and only one word category for this image. Respond with only one word (or at most two), no extra lines, no punctuation, no explanation.");
             const category = result;
             const post = await postModel.create({
                 text:text,
